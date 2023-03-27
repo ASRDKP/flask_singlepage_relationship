@@ -68,12 +68,26 @@ class GetDataFromDepartment(Resource):
             print("Error Message :", e.args[0])
             return df
     
-    
+           
+class GetDataFromDepartmentbyID(Resource):
+    def get(self, dept_id):
+        try:
+            data = Department.query.filter_by(dept_id=dept_id)
+            udata = dept_schemas.dumps(data)
+            data = json.loads(udata)
+            return data
+        except Exception as e:
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error Message :", e.args[0])
+            return df
 
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
-
+api.add_resource(GetDataFromDepartmentbyID, '/GetDataFromDepartmentbyID/<int:dept_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
