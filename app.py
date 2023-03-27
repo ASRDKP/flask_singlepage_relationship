@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api, Resource
 from flask_marshmallow import Marshmallow
+import json
 
 app = Flask(__name__)
 api = Api(app)
@@ -23,7 +24,6 @@ class Department(db.Model):
 
         }
 
-
 with app.app_context():
     db.create_all()
 
@@ -41,6 +41,10 @@ dept_schemas = deptSchema(many=True)
 
 
 
+
+
+
+
 class HelloWorld(Resource):
     def get(self):
         print("App is working")
@@ -53,7 +57,9 @@ class GetDataFromDepartment(Resource):
     def get(self):
         try:
             data = Department.query.all()
-            return dept_schemas.dumps(data)
+            udata = dept_schemas.dumps(data)
+            data = json.loads(udata)
+            return data
         except Exception as e:
             df = {
                 "Error_Status" : "404 Bad Request",
@@ -61,10 +67,13 @@ class GetDataFromDepartment(Resource):
                 }
             print("Error Message :", e.args[0])
             return df
+    
+    
 
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
