@@ -230,6 +230,31 @@ class GetDataFromEmployeebyID(Resource):
             return df
 
 
+    def put(self, emp_id):
+        try:
+            data = Employee.query.get_or_404(emp_id)
+            if data is None:
+                message = "Data with the given Id does not exist."
+                print(message)
+                return message
+            data.emp_name = request.json['emp_name']
+            data.surname = request.json['surname']
+            data.dept_id = request.json['dept_id']
+            data.postion = request.json['postion']
+            data.email = request.json['email']
+            data.salary = request.json['salary']
+            data.contact = request.json['contact']
+            db.session.commit()
+            emp_schema.dumps(data)
+            return "Data Updated successfully"
+        except Exception as e:
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error :", e.args[0])
+            return df    
+
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
 api.add_resource(GetDataFromDepartmentbyID, '/GetDataFromDepartmentbyID/<int:dept_id>')
