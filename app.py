@@ -68,6 +68,7 @@ class GetDataFromDepartment(Resource):
             print("Error Message :", e.args[0])
             return df
     
+
            
 class GetDataFromDepartmentbyID(Resource):
     def get(self, dept_id):
@@ -76,6 +77,13 @@ class GetDataFromDepartmentbyID(Resource):
             udata = dept_schemas.dumps(data)
             data = json.loads(udata)
             return data
+    def post(self):
+        try:
+            data = Department(dept_name = request.json['name'])
+            db.session.add(data)
+            db.session.commit()
+            dept_schema.dumps(data)
+            return ("Data added to Department")
         except Exception as e:
             df = {
                 "Error_Status" : "404 Bad Request",
