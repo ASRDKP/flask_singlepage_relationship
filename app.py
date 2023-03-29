@@ -120,6 +120,24 @@ class GetDataFromDepartmentbyID(Resource):
             return df          
 
 
+    def delete(self, dept_id):
+        try:
+            data = Department.query.get_or_404(dept_id)
+            if data is None:
+                message = "Data with the given Id does not exist."
+                print(message)
+                return message
+            db.session.delete(data)
+            db.session.commit()
+            dept_schema.dumps(data)
+            return "Data Deleted Successfully"
+        except Exception as e: 
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error_Message :", e.args[0])
+            return df
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
