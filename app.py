@@ -196,7 +196,22 @@ class GetDataFromEmployee(Resource):
             }
             print("Error_Message :", e.args[0])
             return df
-
+   
+    
+    def post(self):
+        try:
+            data = Employee(emp_name = request.json['emp_name'],surname  = request.json['surname'],dept_id  = request.json['dept_id'],postion  = request.json['postion'],email    = request.json['email'],salary  = request.json['salary'],contact = request.json['contact'])
+            db.session.add(data)
+            db.session.commit()
+            emp_schema.dumps(data)
+            return ("Data added to Department")
+        except Exception as e:
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error : ", e.args[0])
+            return df
 
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
