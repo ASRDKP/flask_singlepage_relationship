@@ -213,11 +213,29 @@ class GetDataFromEmployee(Resource):
             print("Error : ", e.args[0])
             return df
 
+class GetDataFromEmployeebyID(Resource):
+ 
+    def get(self, emp_id):
+        try:
+            data = Employee.query.filter_by(emp_id = emp_id)
+            udata = emp_schemas.dumps(data)
+            data = json.loads(udata)
+            return data
+        except Exception as e:
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error :", e.args[0])
+            return df
+
+
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
 api.add_resource(GetDataFromDepartmentbyID, '/GetDataFromDepartmentbyID/<int:dept_id>')
 
 api.add_resource(GetDataFromEmployee, '/GetDataFromEmployee')
+api.add_resource(GetDataFromEmployeebyID, '/GetDataFromEmployeebyID/<int:emp_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
