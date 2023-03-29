@@ -23,6 +23,31 @@ class Department(db.Model):
             'dept_name' : self.dept_name
 
         }
+        
+class Employee(db.Model):
+    __tablename__ = 'empdetails'
+    emp_id = db.Column(db.Integer, primary_key=True)
+    emp_name = db.Column(db.String(50), nullable=False)
+    surname = db.Column(db.String(50), nullable=False)
+    dept_id = db.Column(db.Integer, db.ForeignKey('department2.dept_id'), nullable=False)
+    postion = db.Column(db.String(35), nullable=False)
+    email = db.Column(db.String(75), unique=True, nullable=False)
+    salary = db.Column(db.Integer, nullable=False)
+    contact = db.Column(db.Integer, nullable=False)
+    
+    
+    def serialize(self):
+        return{
+            'emp_id'  : self.emp_id,
+            'emp_name': self.emp_name,
+            'surname' : self.surname,
+            'dept_id' : self.dept_id,
+            'postion' : self.postion,
+            'email'   : self.email,
+            'salary'  : self.salary,
+            'contact' : self.contact,
+        }
+
 
 with app.app_context():
     db.create_all()
@@ -39,7 +64,23 @@ class deptSchema(ma.SQLAlchemySchema):
 dept_schema = deptSchema()
 dept_schemas = deptSchema(many=True)
 
+class empSchema(ma.SQLAlchemySchema):
+    class Meta:
+        model = Employee
+        
+    emp_id   = ma.auto_field()
+    emp_name = ma.auto_field()
+    surname  = ma.auto_field()
+    dept_id  = ma.auto_field()
+    postion  = ma.auto_field()
+    email    = ma.auto_field()
+    salary   = ma.auto_field()
+    contact  = ma.auto_field()
+    dept_info = ma.Nested(deptSchema)
 
+    
+emp_schema = empSchema()
+emp_schemas = empSchema(many=True)
 
 
 
@@ -139,9 +180,29 @@ class GetDataFromDepartmentbyID(Resource):
             print("Error_Message :", e.args[0])
             return df
 
+
+class GetDataFromEmployee(Resource):
+    def get(self):
+        try:
+            data = Employee.query.all()
+            udata = emp_schemas.dumps(data)
+            data = json.loads(udata)
+            return data
+            # return [Employee.serialize(record) for record in data]
+        except Exception as e:
+            df = {
+                "Error_Status" : "404 Bad Request",
+                "Error_Message" : e.args[0]
+            }
+            print("Error_Message :", e.args[0])
+            return df
+
+
 api.add_resource(HelloWorld, '/')
 api.add_resource(GetDataFromDepartment, '/GetDataFromDepartment')
 api.add_resource(GetDataFromDepartmentbyID, '/GetDataFromDepartmentbyID/<int:dept_id>')
+
+api.add_resource(GetDataFromEmployee, '/GetDataFromEmployee')
 
 if __name__ == '__main__':
     app.run(debug=True)
